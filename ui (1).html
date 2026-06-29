@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>UUS - Unatkozok Ugyhogy Scriptelek</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        /* Input mezőkben ENGEDÉLYEZZÜK a szöveg kijelölést és gépelést */
+        input[type="text"], input[type="password"], input[type="email"], input[type="range"], input[type="checkbox"] {
+            user-select: text;
+            -webkit-user-select: text;
+            pointer-events: auto;
+        }
+
+        body {
+            /* Háttérnek beállítva a Vinewood-os képed */
+            background: #0a0a0c url('image_14f2fe.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- FELSŐ DEKORÁCIÓS ELEMEK (1 AZ 1HEZ STÍLUS) --- */
+        .header-container {
+            text-align: center;
+            position: relative;
+            margin-bottom: 25px;
+            z-index: 10;
+        }
+
+        .code-left {
+            position: absolute;
+            left: -160px;
+            top: 10px;
+            color: #8a2be2;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            transform: rotate(-10deg);
+            opacity: 0.8;
+        }
+
+        .code-right {
+            position: absolute;
+            right: -180px;
+            top: 0px;
+            color: #8a2be2;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            text-align: left;
+            transform: rotate(5deg);
+            opacity: 0.8;
+        }
+        
+        .smiley-right {
+            position: absolute;
+            right: -230px;
+            top: 45px;
+            color: #555;
+            font-size: 24px;
+            transform: rotate(90deg);
+        }
+
+        .stickman {
+            width: 70px;
+            opacity: 0.8;
+            vertical-align: middle;
+            margin-right: 15px;
+        }
+
+        .logo-uus {
+            font-size: 80px;
+            font-weight: 900;
+            font-style: italic;
+            display: inline-block;
+            background: linear-gradient(45deg, #a855f7, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .sub-logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: -10px;
+            letter-spacing: 1px;
+        }
+        .sub-logo span { color: #a855f7; }
+
+        .mta-star {
+            font-size: 12px;
+            color: #a855f7;
+            margin-top: 5px;
+            letter-spacing: 2px;
+        }
+
+        /* --- PANEL KIALAKÍTÁS --- */
+        .panel-wrapper {
+            width: 420px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .panel {
+            background: rgba(15, 15, 20, 0.92);
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none; /* Alapból elrejtve, JS-ből indítjuk */
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .sub-title {
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 12px 12px 12px 42px;
+            background: #14141a;
+            border: 1px solid #2e2e3a;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: #8a2be2;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: #8a2be2;
+            font-size: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #6c2dc7;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:hover { background: #7b39db; }
+        .btn:active { transform: scale(0.98); }
+
+        /* Váltó link stílusa */
+        .switch-link {
+            text-align: center;
+            margin: 15px 0 5px 0;
+            font-size: 13px;
+            color: #a855f7;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .switch-link:hover {
+            color: #c084fc;
+        }
+
+        .footer-tip {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-top: 20px;
+            line-height: 15px;
+        }
+
+        /* --- BAL ALSÓ ZENELEJÁTSZÓ WIDGET --- */
+        .music-widget {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(15, 15, 20, 0.9);
+            border: 1px solid #2a2a35;
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .music-info {
+            font-size: 12px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .music-track-name {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .music-btn {
+            background: #22222b;
+            border: 1px solid #3a3a4a;
+            color: #fff;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .music-btn:hover { background: #33333f; }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-grow: 1;
+            margin-left: 5px;
+        }
+
+        .volume-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #333;
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #a855f7;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-container">
+    <div class="code-left">print("unatkozok")</div>
+    <div class="code-right">triggerServerEvent<br>("unatkozok", root)</div>
+    <div class="smiley-right">:)</div>
+    
+    <svg class="stickman" viewBox="0 0 100 100" stroke="white" stroke-width="3" fill="none">
+        <circle cx="50" cy="25" r="12" />
+        <line x1="50" y1="37" x2="50" y2="65" />
+        <line x1="50" y1="45" x2="25" y2="40" />
+        <line x1="50" y1="45" x2="75" y2="40" />
+        <line x1="50" y1="65" x2="30" y2="90" />
+        <line x1="50" y1="65" x2="70" y2="90" />
+    </svg>
+    
+    <span class="logo-uus">UUS</span>
+    <div class="sub-logo"><span>U</span>natkozok <span>U</span>gyhogy <span>S</span>criptelek</div>
+    <div class="mta-star">◦ MTA:SA FREE ROAM / RPG SZERVER ◦</div>
+</div>
+
+<div class="panel-wrapper">
+    
+    <div class="panel active" id="login-panel">
+        <h2>👤 Bejelentkezés</h2>
+        <div class="sub-title">Lépj be és unatkozz velünk együtt! 😉</div>
+        
+        <div class="form-group">
+            <label>Felhasználónév</label>
+            <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="login-user" placeholder="Írd ide a neved...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Jelszó</label>
+            <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="login-pass" placeholder="Írd ide a jelszavad...">
+            </div>
+        </div>
+
+        <label class="checkbox-group">
+            <input type="checkbox"> Emlékezz rám (de ne a jelszavamra)
+        </label>
+
+        <button class="btn" id="btn-login">➔ BEJELENTKEZÉS</button>
+
+        <div class="switch-link" id="go-to-reg">Nincs még fiókod? Akkor regisztrálj!</div>
+
+        <div class="footer-tip">☕ Tipp: Ha elfelejtetted a jelszavad, az nem a mi hibánk, de akármikor létrehozhatsz egy második fiókot is.</div>
+    </div>
+
+    <div class="panel" id="reg-panel">
+        <h2>➕ Regisztráció</h2>
+        <div class="sub-title">Hozz létre egy fiókot és unatkozz profin! 😎</div>
+
+        <div class="form-group">
+            <label>Felhasználónév</label>
+            <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="reg-user" placeholder="Legyél kreatív, ne használj 123-at...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Jelszó</label>
+            <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="reg-pass1" placeholder="Minimum 6 karakter, de több is jobb...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Jelszó megerősítése</label>
+            <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="reg-pass2" placeholder="Írd be újra, nehogy elrontsd...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>E-mail cím</label>
+            <div class="input-wrapper">
+                <span class="input-icon">✉</span>
+                <input type="email" id="reg-email" placeholder="Valós e-mail, nem kamu@kamu.hu...">
+            </div>
+        </div>
+
+        <label class="checkbox-group">
+            <input type="checkbox" id="reg-accept"> Elfogadom a szabályzatot, amit úgysem olvasok el.
+        </label>
+
+        <button class="btn" id="btn-register">👤+ REGISZTRÁLOK</button>
+
+        <div class="switch-link" id="go-to-login">Már van fiókom, inkább belépek!</div>
+
+        <div class="footer-tip">⚠️ Figyelem: A regisztrációval vállalod, hogy unatkozni fogsz.</div>
+    </div>
+</div>
+
+<div class="music-widget">
+    <div class="music-info">Rádió: <span class="music-track-name" id="track-title">Betöltés...</span></div>
+    <div class="music-controls">
+        <button class="music-btn" id="music-play-toggle">⏸ Szünet</button>
+        <button class="music-btn" id="music-next">➔ Következő</button>
+        <div class="volume-container">
+            <span style="font-size:11px;">🔊</span>
+            <input type="range" class="volume-slider" id="music-volume" min="0" max="100" value="30">
+        </div>
+    </div>
+</div>
+
+<audio id="click-sound" src="click.mp3" preload="auto"></audio>
+
+<script>
+    // --- HÁTTÉRZENÉK BEÁLLÍTÁSA ---
+    const playlist = [
+        { title: "Baszatós FM 88.8", src: "zene1.mp3" },
+        { title: "PD-kúpolgatós AM 79.2", src: "zene2.mp3" },
+        { title: "ViccesCigis FM 92.1", src: "zene3.mp3" }, // <- Itt hiányzott a vessző
+        { title: "Faszos FM 89.4", src: "zene4.mp3" },       // <- Itt is hiányzott a vessző
+        { title: "KecskeBaszó FM 93.4", src: "zene5.mp3" }     // Az utolsó után nem kötelező, de nem árt
+    ];
+    
+    let currentTrack = 0;
+    const bgMusic = new Audio();
+    bgMusic.volume = 0.3;
+
+    function playTrack(index) {
+        if (playlist.length === 0) return;
+        currentTrack = index;
+        bgMusic.src = playlist[currentTrack].src;
+        document.getElementById("track-title").innerText = playlist[currentTrack].title;
+        
+        bgMusic.play().catch(e => {
+            document.getElementById("track-title").innerText = "[Kattints valahova a zenéhez]";
+        });
+
+        bgMusic.onended = function() {
+            nextTrack();
+        };
+    }
+
+    function nextTrack() {
+        let nextIndex = (currentTrack + 1) % playlist.length;
+        playTrack(nextIndex);
+    }
+
+    // Első indítás terheléskor
+    window.addEventListener('DOMContentLoaded', () => {
+        playTrack(0);
+    });
+
+    // Interakcióra elindul, ha a böngésző blokkolná az auto-playt
+    window.addEventListener('click', () => {
+        if(bgMusic.paused && document.getElementById("music-play-toggle").innerText === "⏸ Szünet") {
+            bgMusic.play().catch(()=>{});
+            document.getElementById("track-title").innerText = playlist[currentTrack].title;
+        }
+    }, { once: true });
+
+    // KLIKK HANG
+    function playClick() {
+        const snd = document.getElementById("click-sound");
+        snd.currentTime = 0;
+        snd.play().catch(()=>{});
+    }
+
+    /* --- INTERFÉSZ PANEL VÁLTÓ LOGIKA (BÖNGÉSZŐBIZTOS JAVÍTÁS) --- */
+    const loginPanel = document.getElementById("login-panel");
+    const regPanel = document.getElementById("reg-panel");
+
+    document.getElementById("go-to-reg").addEventListener("click", () => {
+        playClick();
+        loginPanel.classList.remove("active");
+        regPanel.classList.add("active");
+    });
+
+    document.getElementById("go-to-login").addEventListener("click", () => {
+        playClick();
+        regPanel.classList.remove("active");
+        loginPanel.classList.add("active");
+    });
+
+    // --- ZENEI WIDGET FUNKCIÓK ---
+    const playToggleBtn = document.getElementById("music-play-toggle");
+    playToggleBtn.addEventListener("click", () => {
+        playClick();
+        if (bgMusic.paused) {
+            bgMusic.play();
+            playToggleBtn.innerText = "⏸ Szünet";
+        } else {
+            bgMusic.pause();
+            playToggleBtn.innerText = "▶ Lejátszás";
+        }
+    });
+
+    document.getElementById("music-next").addEventListener("click", () => {
+        playClick();
+        nextTrack();
+        playToggleBtn.innerText = "⏸ Szünet";
+    });
+
+    const volumeSlider = document.getElementById("music-volume");
+    volumeSlider.addEventListener("input", (e) => {
+        bgMusic.volume = e.target.value / 100;
+    });
+
+    // --- INPUT FÓKUSZ JELZÉS MTA LUA FELÉ ---
+    // Ha szövegmezőre kattint: jelezzük a Lua-nak, hogy adja át a billentyűzetet
+    document.querySelectorAll("input[type='text'], input[type='password'], input[type='email']").forEach(function(inp) {
+        inp.addEventListener("focus", function() {
+            if (typeof mta !== "undefined") {
+                mta.triggerEvent("onBrowserInputFocus", 1);
+            }
+        });
+        inp.addEventListener("blur", function() {
+            if (typeof mta !== "undefined") {
+                mta.triggerEvent("onBrowserInputFocus", 0);
+            }
+        });
+    });
+
+    // --- KÜLDÉSEK MTA LUA FELÉ (BÖNGÉSZŐBIZTOS VERZIÓ) ---
+    document.getElementById("btn-login").addEventListener("click", () => {
+        playClick();
+        const user = document.getElementById("login-user").value;
+        const pass = document.getElementById("login-pass").value;
+        
+        if (typeof mta !== "undefined") {
+            mta.triggerEvent("onClientLoginSubmit", user, pass);
+        } else {
+            console.log("Sima böngészős teszt - Login:", user, pass);
+        }
+    });
+
+    document.getElementById("btn-register").addEventListener("click", () => {
+        playClick();
+        const user = document.getElementById("reg-user").value;
+        const pass1 = document.getElementById("reg-pass1").value;
+        const pass2 = document.getElementById("reg-pass2").value;
+        const email = document.getElementById("reg-email").value;
+        const accepted = document.getElementById("reg-accept").checked;
+
+        if(!accepted) {
+            alert("Be kell jelölnöd, hogy elfogadod a szabályzatot!");
+            return;
+        }
+        if(pass1 !== pass2) {
+            alert("A két jelszó nem egyezik meg!");
+            return;
+        }
+
+        if (typeof mta !== "undefined") {
+            mta.triggerEvent("onClientRegisterSubmit", user, pass1, email);
+        } else {
+            console.log("Sima böngészős teszt - Regisztráció:", user, pass1, email);
+        }
+    });
+</script>
+</body>
+</html>
